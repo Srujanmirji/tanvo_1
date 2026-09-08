@@ -32,3 +32,4 @@ React, TypeScript, Vite, Tailwind CSS, Framer Motion, GSAP ScrollTrigger, Lenis,
 
 Photos originate from Unsplash. Typography is Manrope via Google Fonts. No backend, analytics, tracking, or contact submission service is configured. The site can be hosted as the static `dist` output.
 # tanvo_1
+# tanvo_1
