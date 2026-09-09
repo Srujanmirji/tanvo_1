@@ -59,8 +59,8 @@ the live `/exec` URL.
 - Supply approved client testimonials; none have been fabricated.
 - Supply the actual showreel video. The current studio introduction is a designed visual presentation, labeled accordingly.
 - Confirm supplied team/project counts and contact information.
-- Add verified social profile URLs if desired.
+- Social profiles are live: Instagram (@tanvo.in) and LinkedIn (/company/tanvoin).
 
-Photos originate from Unsplash. Typography is Manrope via Google Fonts. No backend, analytics, tracking, or contact submission service is configured. The site can be hosted as the static `dist` output.
+Photos originate from Unsplash. Typography is Manrope via Google Fonts. Inquiries POST to a Google Apps Script web app (see Inquiry form above). No analytics or tracking is configured. The site can be hosted as the static `dist` output.
 # tanvo_1
 # tanvo_1
