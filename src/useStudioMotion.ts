@@ -21,7 +21,10 @@ export function useReducedMotionPreference() {
 /** Scroll owns outer layers; pointer and idle motion own nested layers. */
 export function useStudioMotion(reduced: boolean | null) {
   useEffect(() => {
-    if (reduced) return;
+    if (reduced) {
+      document.querySelectorAll<HTMLElement>('[data-count]').forEach(el => { el.textContent = el.dataset.count ?? ''; });
+      return;
+    }
     const lenis = new Lenis({ duration: 1.05, anchors: true });
     lenis.on('scroll', ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
@@ -32,10 +35,10 @@ export function useStudioMotion(reduced: boolean | null) {
       gsap.from('.hero h1 .line span', {
         yPercent: 108, opacity: 0, duration: 1, stagger: 0.1, ease: 'power3.out',
       });
-      gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach(el => {
-        gsap.from(el, {
-          y: 24, opacity: 0, duration: 0.7,
-          scrollTrigger: { trigger: el, start: 'top 94%', once: true },
+      gsap.utils.toArray<HTMLElement>('.reveal-heading').forEach(heading => {
+        gsap.from(heading.querySelectorAll('.heading-line-inner'), {
+          yPercent: 108, opacity: 0, duration: 0.9, stagger: 0.09, ease: 'power3.out',
+          scrollTrigger: { trigger: heading, start: 'top 94%', once: true },
         });
       });
       gsap.utils.toArray<HTMLElement>('[data-count]').forEach(el => {
@@ -97,7 +100,7 @@ export function useStudioMotion(reduced: boolean | null) {
           const slide = gsap.to(track, {
             x: () => -travel(), ease: 'none',
             scrollTrigger: {
-              id: 'portfolio', refreshPriority: 1, trigger: '.work', start: 'top 82px', end: () => `+=${travel()}`,
+              id: 'portfolio', refreshPriority: 1, trigger: '.work', start: 'top 94px', end: () => `+=${travel()}`,
               pin: true, scrub: 0.7, invalidateOnRefresh: true,
               onUpdate: self => gsap.set('.work-progress-fill', { scaleX: self.progress }),
             },
@@ -109,10 +112,16 @@ export function useStudioMotion(reduced: boolean | null) {
               scrollTrigger: { trigger: el, containerAnimation: slide, start: 'left 95%', end: 'left 35%', scrub: true },
             });
           });
-          gsap.to('.hero-art .sculpture', { y: -130, rotation: -8, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 } });
+          gsap.utils.toArray<HTMLElement>('.project-card').forEach((card, i) => {
+            if (i === 0) return;
+            const trigger = { trigger: card, containerAnimation: slide, start: 'left 95%', end: 'left 45%', scrub: true };
+            gsap.from(card.querySelector('.project-meta'), { y: 18, opacity: 0.3, ease: 'none', scrollTrigger: trigger });
+            gsap.from(card.querySelector('.project-index'), { x: 22, opacity: 0.4, ease: 'none', scrollTrigger: { ...trigger } });
+          });
+          gsap.to('.hero-art .sculpture', { y: -115, rotation: -5, scale: () => Number(gsap.getProperty('.hero-art .sculpture', 'scaleX')) * 1.025, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 } });
           gsap.to('.hero h1', { y: -65, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 } });
           gsap.to('.hero-copy > p', { opacity: 0, y: -15, scrollTrigger: { trigger: '.hero', start: 'top top', end: '35% top', scrub: true } });
-          gsap.to('.about-image', { yPercent: 17, ease: 'none', scrollTrigger: { trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: 0.8 } });
+          gsap.to('.about-image', { yPercent: 13, scale: 1.035, ease: 'none', scrollTrigger: { trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: 0.8 } });
           gsap.to('.contact-device', { y: -50, ease: 'none', scrollTrigger: { trigger: '.contact', start: 'top bottom', end: 'bottom top', scrub: 0.8 } });
         }
 
@@ -123,19 +132,23 @@ export function useStudioMotion(reduced: boolean | null) {
           const element = area.querySelector<HTMLElement>(target)!;
           const tiltX = gsap.quickTo(element, 'rotationX', { duration: 0.8, ease: 'power3.out' });
           const tiltY = gsap.quickTo(element, 'rotationY', { duration: 0.8, ease: 'power3.out' });
+          const shiftX = gsap.quickTo(element, 'x', { duration: 1, ease: 'power3.out' });
+          const shiftY = gsap.quickTo(element, 'y', { duration: 1, ease: 'power3.out' });
           const move = (event: PointerEvent) => {
             const box = area.getBoundingClientRect();
-            tiltX((0.5 - (event.clientY - box.top) / box.height) * degrees);
-            tiltY(((event.clientX - box.left) / box.width - 0.5) * degrees);
+            const x = gsap.utils.clamp(-0.5, 0.5, (event.clientX - box.left) / box.width - 0.5);
+            const y = gsap.utils.clamp(-0.5, 0.5, (event.clientY - box.top) / box.height - 0.5);
+            tiltX(-y * degrees); tiltY(x * degrees);
+            shiftX(x * 8); shiftY(y * 6);
           };
-          const reset = () => { tiltX(0); tiltY(0); };
+          const reset = () => { tiltX(0); tiltY(0); shiftX(0); shiftY(0); };
           area.addEventListener('pointermove', move);
           area.addEventListener('pointerleave', reset);
           removals.push(() => { area.removeEventListener('pointermove', move); area.removeEventListener('pointerleave', reset); });
         };
-        attachTilt('.hero', '.sculpture-rotor', 12);
-        attachTilt('.contact', '.phone-mock', 14);
-        const idle = gsap.to('.hero .structure', { rotationZ: '+=5', duration: 7, repeat: -1, yoyo: true, ease: 'sine.inOut', paused: true });
+        attachTilt('.hero', '.sculpture-rotor', 8);
+        attachTilt('.contact', '.phone-mock', 8);
+        const idle = gsap.to('.hero .structure', { rotationZ: '+=2', y: -8, duration: 11, repeat: -1, yoyo: true, ease: 'sine.inOut', paused: true });
         const light = gsap.to('.orbit', { x: 50, y: -40, opacity: 0.5, duration: 5, repeat: -1, yoyo: true, ease: 'sine.inOut', paused: true });
         let heroVisible = false;
         let contactVisible = false;
@@ -153,12 +166,16 @@ export function useStudioMotion(reduced: boolean | null) {
         const moveY = gsap.quickTo(cursor, 'y', { duration: 0.15 });
         const moveCursor = (event: PointerEvent) => {
           moveX(event.clientX); moveY(event.clientY);
-          cursor.classList.toggle('visible', event.target instanceof Element && !!event.target.closest('.project-image'));
+          const target = event.target instanceof Element ? event.target : null;
+          cursor.classList.add('visible');
+          cursor.classList.toggle('is-project', !!target?.closest('.project-image'));
+          cursor.classList.toggle('is-interactive', !!target?.closest('a, button, [role=tab]'));
         };
         const hideCursor = () => cursor.classList.remove('visible');
         document.addEventListener('pointermove', moveCursor);
         window.addEventListener('scroll', hideCursor, { passive: true });
         window.addEventListener('blur', hideCursor);
+        document.documentElement.addEventListener('pointerleave', hideCursor);
         return () => {
           removals.forEach(remove => remove());
           observer.disconnect();
@@ -166,6 +183,7 @@ export function useStudioMotion(reduced: boolean | null) {
           document.removeEventListener('pointermove', moveCursor);
           window.removeEventListener('scroll', hideCursor);
           window.removeEventListener('blur', hideCursor);
+          document.documentElement.removeEventListener('pointerleave', hideCursor);
           hideCursor();
         };
       });
