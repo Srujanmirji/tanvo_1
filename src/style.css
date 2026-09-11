@@ -108,3 +108,6 @@ html{scrollbar-color:var(--color-line) var(--color-ink)}.stats strong{font-varia
  .hero-grid{height:auto;flex:0 0 auto}
  .hero-bottom{position:static;inset:auto;margin-top:auto;padding-top:20px}
 }
+.footer-legal{display:inline-flex;gap:24px}
+.footer-legal a{min-height:44px;display:inline-flex;align-items:center}
+.footer-legal a:hover{color:var(--color-paper)}
