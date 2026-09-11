@@ -68,7 +68,7 @@ test('scroll motion and portfolio remain usable',async({page})=>{
  await page.mouse.move(30,120);
  await expect(page.locator('.custom-cursor')).toHaveClass(/visible/);
  await expect(page.locator('.custom-cursor')).not.toHaveClass(/is-project/);
- await page.getByRole('link',{name:'Let’s talk'}).hover();
+ await page.locator('.nav-cta .button').hover();
  await expect(page.locator('.custom-cursor')).toHaveClass(/is-interactive/);
  await page.locator('#work').scrollIntoViewIfNeeded();
  await page.mouse.wheel(0,600);
@@ -152,7 +152,7 @@ test('inquiry form surfaces the server error instead of faking success', async (
   const dialog=page.getByRole('dialog');
   await dialog.getByLabel('Your name').fill('Ada');
   await dialog.getByLabel('Email').fill('ada@example.com');
-  await dialog.getByLabel('About the project').fill('Testing the failure path.');
+  await dialog.getByLabel('About the project').fill('Testing the failure path with a brief long enough to pass validation.');
   await dialog.getByRole('button',{name:'Send inquiry'}).click();
   await expect(dialog.locator('.enquiry-error')).toContainText('That email address does not look valid.');
   await expect(dialog.getByRole('heading',{level:2})).not.toContainText('Thanks');
@@ -165,7 +165,7 @@ test('inquiry form reports an unreachable endpoint', async ({ page }) => {
   const dialog=page.getByRole('dialog');
   await dialog.getByLabel('Your name').fill('Ada');
   await dialog.getByLabel('Email').fill('ada@example.com');
-  await dialog.getByLabel('About the project').fill('Testing the network path.');
+  await dialog.getByLabel('About the project').fill('Testing the network path with a brief long enough to pass validation.');
   await dialog.getByRole('button',{name:'Send inquiry'}).click();
   await expect(dialog.locator('.enquiry-error')).toContainText('could not reach the server');
 });
@@ -180,4 +180,40 @@ test('inquiry fields are keyboard focusable with a visible ring', async ({ page 
   const ring=await name.evaluate(el=>{const cs=getComputedStyle(el);return {outline:cs.outlineColor+' '+cs.outlineWidth,border:cs.borderTopColor}});
   expect(ring.outline).toBe('rgb(255, 90, 0) 2px');
   expect(ring.border).toBe('rgb(255, 90, 0)');
+});
+
+test('inquiry form shows inline errors and blocks submit', async ({ page }) => {
+  const posted: string[]=[];
+  await page.route('**/exec', r=>{posted.push('hit');return r.fulfill({status:200,contentType:'application/json',body:'{"status":"ok"}'})});
+  await page.goto('/');
+  await page.locator('.hero-actions .button').click();
+  const dialog=page.getByRole('dialog');
+
+  // empty submit: inline messages appear, focus lands on the first bad field, nothing is sent
+  await dialog.getByRole('button',{name:'Send inquiry'}).click();
+  await expect(dialog.locator('.field-error')).not.toHaveCount(0);
+  await expect(dialog.getByLabel('Your name')).toBeFocused();
+  await expect(dialog.getByLabel('Your name')).toHaveAttribute('aria-invalid','true');
+  expect(posted).toHaveLength(0);
+
+  // a brief that is too short is rejected
+  await dialog.getByLabel('Your name').fill('Ada Lovelace');
+  await dialog.getByLabel('Email').fill('ada@example.com');
+  await dialog.getByLabel('About the project').fill('too short');
+  await dialog.getByRole('button',{name:'Send inquiry'}).click();
+  await expect(dialog.getByLabel('About the project')).toHaveAttribute('aria-invalid','true');
+  expect(posted).toHaveLength(0);
+
+  // a malformed phone is rejected
+  await dialog.getByLabel('About the project').fill('A marketing site plus a booking flow, live by March.');
+  await dialog.getByLabel('Phone').fill('not a phone number!!');
+  await dialog.getByRole('button',{name:'Send inquiry'}).click();
+  await expect(dialog.getByLabel('Phone')).toHaveAttribute('aria-invalid','true');
+  expect(posted).toHaveLength(0);
+
+  // corrected, it goes through and the errors clear
+  await dialog.getByLabel('Phone').fill('+91 99999 11111');
+  await dialog.getByRole('button',{name:'Send inquiry'}).click();
+  await expect(dialog.getByRole('heading',{level:2})).toContainText('Thanks');
+  expect(posted).toHaveLength(1);
 });

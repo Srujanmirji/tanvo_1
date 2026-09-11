@@ -49,10 +49,22 @@ const ENQUIRY_SECRET=import.meta.env.VITE_ENQUIRY_SECRET as string|undefined;
 function EnquiryForm(){
  const [status,setStatus]=useState<'idle'|'sending'|'sent'|'error'>('idle');
  const [error,setError]=useState('');
+ const [fieldErrors,setFieldErrors]=useState<Record<string,string>>({});
  const fail=(msg:string)=>{setError(msg);setStatus('error')};
  const send=async(e:React.FormEvent<HTMLFormElement>)=>{
   e.preventDefault();
-  const form=new FormData(e.currentTarget);
+  const el=e.currentTarget;
+  // Browser bubbles vanish on scroll and are unreadable on mobile; surface the
+  // same ValidityState messages inline instead, and send focus to the first one.
+  const invalid=Array.from(el.elements).filter((f):f is HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement =>
+    'validity' in f && !(f as HTMLInputElement).validity.valid);
+  if(invalid.length){
+   setFieldErrors(Object.fromEntries(invalid.map(f=>[f.name,f.validationMessage])));
+   invalid[0].focus();
+   return;
+  }
+  setFieldErrors({});
+  const form=new FormData(el);
   if(!ENQUIRY_ENDPOINT||!ENQUIRY_SECRET){console.error('VITE_ENQUIRY_ENDPOINT / VITE_ENQUIRY_SECRET are not set');return fail('The form is not configured yet.')}
   setStatus('sending');setError('');
   try{
@@ -71,13 +83,13 @@ function EnquiryForm(){
  };
  if(status==='sent')return <div className="dialog-content enquiry-done"><Label>Inquiry received</Label><h2>Thanks. We’re on it.</h2><p>Your brief is with the team. Expect a reply within one working day — usually sooner.</p><a className="text-link" href="mailto:support@tanvo.in">support@tanvo.in <ArrowUpRight size={17}/></a></div>;
  return <div className="dialog-content"><Label>Start a project</Label><h2>Tell us what<br/>you’re <em>building.</em></h2><p className="enquiry-intro">A few details is all we need. No forms-in-triplicate, no sales sequence.</p>
-  <form className="enquiry-form" onSubmit={send}>
+  <form className="enquiry-form" onSubmit={send} noValidate>
    <p className="honeypot" aria-hidden="true"><label htmlFor="eq-hp">Leave this empty</label><input id="eq-hp" name="tv_hp" tabIndex={-1} autoComplete="off"/></p>
-   <div className="field"><label htmlFor="eq-name">Your name <em>*</em></label><input id="eq-name" name="name" required maxLength={200} autoComplete="name" placeholder="Ada Lovelace"/></div>
-   <div className="field"><label htmlFor="eq-email">Email <em>*</em></label><input id="eq-email" name="email" type="email" required maxLength={200} autoComplete="email" placeholder="you@company.com"/></div>
-   <div className="field"><label htmlFor="eq-phone">Phone</label><input id="eq-phone" name="phone" type="tel" maxLength={60} autoComplete="tel" placeholder="+91 00000 00000"/></div>
+   <div className="field"><label htmlFor="eq-name">Your name <em>*</em></label><input id="eq-name" name="name" aria-invalid={!!fieldErrors.name} aria-describedby={fieldErrors.name?"eq-name-error":undefined} required maxLength={200} autoComplete="name" placeholder="Ada Lovelace"/>{fieldErrors.name&&<p className="field-error" id="eq-name-error">{fieldErrors.name}</p>}</div>
+   <div className="field"><label htmlFor="eq-email">Email <em>*</em></label><input id="eq-email" name="email" aria-invalid={!!fieldErrors.email} aria-describedby={fieldErrors.email?"eq-email-error":undefined} type="email" required maxLength={200} autoComplete="email" placeholder="you@company.com"/>{fieldErrors.email&&<p className="field-error" id="eq-email-error">{fieldErrors.email}</p>}</div>
+   <div className="field"><label htmlFor="eq-phone">Phone</label><input id="eq-phone" name="phone" pattern={"[0-9+\\(\\) \\-]{7,20}"} title="Use digits, spaces, + ( ) or -" aria-invalid={!!fieldErrors.phone} aria-describedby={fieldErrors.phone?"eq-phone-error":undefined} type="tel" maxLength={60} autoComplete="tel" placeholder="+91 00000 00000"/>{fieldErrors.phone&&<p className="field-error" id="eq-phone-error">{fieldErrors.phone}</p>}</div>
    <fieldset className="field field-wide capability-picker"><legend>What do you need?</legend><div className="chips">{services.map(s=><label key={s.title} className="chip"><input type="checkbox" name="capabilities" value={s.title}/><span>{s.title}</span></label>)}<label className="chip"><input type="checkbox" name="capabilities" value="Not sure yet"/><span>Not sure yet</span></label></div></fieldset>
-   <div className="field field-wide"><label htmlFor="eq-message">About the project <em>*</em></label><textarea id="eq-message" name="message" rows={4} required maxLength={5000} placeholder="What are you making, who is it for, and when do you need it live?"/></div>
+   <div className="field field-wide"><label htmlFor="eq-message">About the project <em>*</em></label><textarea id="eq-message" name="message" aria-invalid={!!fieldErrors.message} aria-describedby={fieldErrors.message?"eq-message-error":undefined} rows={4} required minLength={30} maxLength={5000} placeholder="What are you making, who is it for, and when do you need it live?"/>{fieldErrors.message&&<p className="field-error" id="eq-message-error">{fieldErrors.message}</p>}</div>
    <div className="enquiry-actions">
     <button className="button" type="submit" disabled={status==='sending'}>{status==='sending'?'Sending…':'Send inquiry'}{status!=='sending'&&<ArrowUpRight size={17}/>}</button>
     <span className="enquiry-note">We reply within one working day.</span>
@@ -93,7 +105,7 @@ function App(){
  useEffect(()=>{const onScroll=()=>setScrolled(window.scrollY>30);window.addEventListener('scroll',onScroll,{passive:true});return()=>window.removeEventListener('scroll',onScroll)},[]);
  useStudioMotion(reduce);
  useEffect(()=>{if(!menu)return;const old=document.body.style.overflow;document.body.style.overflow='hidden';const toggle=document.querySelector<HTMLButtonElement>('.menu-toggle');const links=Array.from(document.querySelectorAll<HTMLAnchorElement>('.mobile-menu a'));links[0]?.focus();const main=document.querySelector('main');const footer=document.querySelector('footer');if(main)main.inert=true;if(footer)footer.inert=true;const key=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenu(false);if(e.key==='Tab'){const first=links[0];const last=links.at(-1);if(e.shiftKey && document.activeElement===first){e.preventDefault();toggle?.focus()}else if(!e.shiftKey && document.activeElement===last){e.preventDefault();toggle?.focus()}else if(e.shiftKey && document.activeElement===toggle){e.preventDefault();last?.focus()}}};document.addEventListener('keydown',key);return()=>{document.body.style.overflow=old;document.removeEventListener('keydown',key);if(main)main.inert=false;if(footer)footer.inert=false;toggle?.focus()}},[menu]);
- return <><a className="skip" href="#main">Skip to content</a><header className={scrolled?'nav scrolled':'nav'}><div className="nav-inner"><Brand/><nav aria-label="Main navigation">{['Work','Services','Process','About','Insights'].map(x=><a key={x} href={`#${x.toLowerCase()}`}>{x}</a>)}</nav><div className="nav-cta"><Button secondary>Let’s talk</Button></div><button className="menu-toggle" aria-label={menu?'Close menu':'Open menu'} aria-expanded={menu} aria-controls="mobile-menu" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div></header>
+ return <><a className="skip" href="#main">Skip to content</a><header className={scrolled?'nav scrolled':'nav'}><div className="nav-inner"><Brand/><nav aria-label="Main navigation">{['Work','Services','Process','About','Contact'].map(x=><a key={x} href={`#${x.toLowerCase()}`}>{x}</a>)}</nav><div className="nav-cta"><Button onClick={openEnquiry}>Start a Project</Button></div><button className="menu-toggle" aria-label={menu?'Close menu':'Open menu'} aria-expanded={menu} aria-controls="mobile-menu" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div></header>
  <AnimatePresence>{menu&&<motion.nav id="mobile-menu" className="mobile-menu" aria-label="Mobile navigation" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>{['Home','Work','Services','Process','About','Insights','Contact'].map((x,i)=><motion.a initial={{y:reduce?0:25,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:reduce?0:i*.05}} href={`#${x.toLowerCase()}`} key={x} onClick={()=>setMenu(false)}>{x}<ArrowUpRight/></motion.a>)}</motion.nav>}</AnimatePresence>
  <main id="main"><section className="hero" id="home"><div className="hero-grid"><div className="hero-copy"><Label>Web development agency · Hubli–Dharwad</Label><h1>{['Ideas','Into','Impact.'].map(t=><span className="line" key={t}><span>{t}</span></span>)}</h1><p>Tanvo builds fast websites, apps and digital growth systems for ambitious businesses in Hubli–Dharwad and across Karnataka.</p><div className="hero-actions"><Button onClick={openEnquiry}>Start a Project</Button><button className="showreel" onClick={()=>setShowreel(true)}><span><Play size={13} fill="currentColor"/></span>Our studio in motion</button></div></div><div className="hero-art"><Sculpture/><div className="annotation">WEBSITES<br/>APPS<br/>BRANDS<br/>GROWTH<svg viewBox="0 0 120 70"><path d="M4 61C80 82 25 18 109 12m-13-7 14 7-12 8"/></svg></div><div className="art-caption"><span className="status-dot"/> Independent minds. Shared ambition.<span>EST. 2024</span></div></div></div><div className="hero-bottom"><span>Creative thinking. Real-world impact.</span><a href="#about">Scroll to explore <span>↓</span></a></div></section>
  <section className="trust wrap"><Label>In good company</Label><div className="logos"><span className="kyzo">KÝZO</span><span className="slow">The Slow House</span><span className="hospital"><Cross/> SHIVAKRUPA<small>HOSPITAL</small></span><span className="buy"><Box/> Buy N Build</span><span className="and-more">Good people.<br/>Ambitious brands.</span></div></section>
@@ -107,7 +119,7 @@ function App(){
     <div className={`project-image ${p.theme}`}><div className="project-image-inner"><img src={p.image} alt={`${p.name} concept preview — ${p.category}`} loading="lazy"/><div className="project-mock-nav"><b>{p.name}</b><span>About &nbsp; Discover &nbsp; Contact <ArrowUpRight size={12}/></span></div><div className="mock-title">{p.headline.split('\n').map(x=><span key={x}>{x}<br/></span>)}</div><span className="mock-button">Discover the experience <ArrowUpRight size={12}/></span></div><span className="project-preview-label">Concept preview</span></div>
     <span className="project-view">View Case Study <ArrowUpRight size={19}/></span>
    </button>
-   <div className="project-meta"><div className="project-identity"><h3>{p.name}</h3><p>{p.category}</p></div><div className="project-deliverables"><span>Concept scope</span><p>{p.tags}<br/>Design / Development</p></div><div className="project-description"><span>Overview</span><p>{p.description}</p></div><div className="project-year"><span>Year</span><p>To be confirmed</p></div></div>
+   <div className="project-meta"><div className="project-identity"><h3>{p.name}</h3><p>{p.category}</p></div><div className="project-description"><span>Outcome</span><p>{p.description}</p></div><span className="project-status">Concept / internal study</span></div>
   </article>)}</div>
   <div className="work-bottom wrap"><span>Four perspectives. One standard of craft.</span><div className="work-progress"><div className="work-progress-fill"/></div><span>SCROLL TO EXPLORE <ArrowRight size={16}/></span></div>
  </section>
