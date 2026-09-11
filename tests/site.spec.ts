@@ -26,7 +26,7 @@ for (const width of [1280, 390, 430]) test(`page and interactions at ${width}px`
   await expect(service).toHaveAttribute('aria-expanded','true');
   await expect(page.locator('#service-detail')).toContainText('custom web applications');
   await service.click();
-  await page.getByRole('button',{name:'View Kyzo case study'}).click();
+  await page.getByRole('button',{name:'View Kyzo concept'}).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).not.toBeVisible();
