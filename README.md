@@ -55,6 +55,10 @@ the live `/exec` URL.
 
 ## Content to finalize before public launch
 
+- **Legal pages need real business identity** — `/privacy` and `/terms` currently identify the
+  operator as "Tanvo". Publish the registered business name, registered address, and confirm the
+  governing-law court named in the Terms. Tracked as HTML comments in each page.
+
 - Project screenshots are deferred at the user’s request. Replace the labeled concept previews when the actual assets arrive, and confirm project years, service scope, links, and results.
 - Supply approved client testimonials; none have been fabricated.
 - Supply the actual showreel video. The current studio introduction is a designed visual presentation, labeled accordingly.

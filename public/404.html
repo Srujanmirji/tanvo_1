@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070707" />
+    <meta name="robots" content="noindex,follow" />
+    <title>Page not found | Tanvo</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;650;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/legal.css" />
+    <style>
+      main{display:grid;place-items:center;min-height:calc(100svh - 76px);padding-block:40px}
+      .four{text-align:center;max-width:520px}
+      .code{font-size:clamp(76px,16vw,132px);line-height:1;font-weight:750;letter-spacing:-.07em;color:var(--paper);margin:0}
+      .code span{color:var(--orange)}
+      .four h1{font-size:clamp(22px,4vw,30px);margin:18px 0 0;letter-spacing:-.03em}
+      .four p{margin:14px 0 0;color:var(--muted)}
+      .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+      .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:5px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid var(--orange);background:var(--orange);color:var(--ink)}
+      .btn:hover{background:#ff782d;border-color:#ff782d}
+      .btn.ghost{background:transparent;color:var(--paper);border-color:#704124}
+      .btn.ghost:hover{border-color:var(--orange);background:#ff5a000d}
+    </style>
+  </head>
+  <body>
+    <header class="bar">
+      <div class="bar-inner">
+        <a class="brand" href="/"><img src="/logo.png" alt="" width="192" height="192" />Tanvo</a>
+        <a class="back" href="/">← Back to tanvo.in</a>
+      </div>
+    </header>
+    <main>
+      <div class="four">
+        <p class="code">4<span>0</span>4</p>
+        <h1>Looks like this page went somewhere else.</h1>
+        <p>The link may be out of date, or the page may have moved since you last visited.</p>
+        <div class="actions">
+          <a class="btn" href="/#contact">Start a Project</a>
+          <a class="btn ghost" href="/">Back home</a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
