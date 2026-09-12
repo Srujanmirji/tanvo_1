@@ -7,3 +7,7 @@ playwright-report/
 .env*
 !.env.example
 .vercel
+
+# source assets
+/Tanvo*.png
+/*.pdf
