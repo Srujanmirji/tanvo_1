@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { ArrowUpRight, ArrowRight, Play, X, Menu, Layers3, Smartphone, PenTool, ChartNoAxesCombined, ShieldCheck, Box, Cross, Mail, Phone, MapPin, Plus, Minus, MoveUpRight, Instagram, Linkedin } from 'lucide-react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useStudioMotion, useReducedMotionPreference } from './useStudioMotion';
@@ -150,4 +151,4 @@ function App(){
  <div className="custom-cursor" aria-hidden="true"><span>VIEW</span><MoveUpRight size={16}/></div>
  </>
 }
-createRoot(document.getElementById('root')!).render(<React.StrictMode><App/><Analytics/></React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<React.StrictMode><App/><Analytics/><SpeedInsights/></React.StrictMode>);
