@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "health_score": 44,
+    "business_type": "Web development service-area business",
+    "top_findings": [
+      "No verified local entity, reviews, citations, or complete NAP were detectable",
+      "The homepage's initial body was an empty client-rendered shell",
+      "The site had no indexable commercial service page",
+      "The portfolio contains concept work rather than verifiable client case studies",
+      "The live favicon.ico returned 404"
+    ],
+    "quick_wins": [
+      "Deploy the new favicon assets",
+      "Submit the updated sitemap in Google Search Console",
+      "Request indexing for the homepage and local service page",
+      "Verify Google Business Profile, Bing Places, and Apple Business Connect"
+    ]
+  },
+  "categories": [
+    {"name":"Technical SEO","score":67,"what_works":["HTTPS","robots.txt","valid sitemap","valid Organization schema","good lab rendering performance"],"findings":[{"title":"Client-rendered body","severity":"High","description":"Meaningful homepage content required JavaScript.","recommendation":"Serve matching crawlable HTML in the initial response."}]},
+    {"name":"Local SEO","score":18,"what_works":["Hubli-Dharwad is named consistently at city level"],"findings":[{"title":"No verified local entity","severity":"Critical","description":"No GBP, reviews, full NAP, or citations were detectable.","recommendation":"Verify business profiles and publish consistent truthful business details."}]},
+    {"name":"AI Search Readiness","score":33,"what_works":["Major AI crawlers are allowed","Organization schema is present"],"findings":[{"title":"Insufficient independent proof","severity":"High","description":"The site lacks real case studies, named experts, reviews and third-party mentions.","recommendation":"Publish verifiable evidence and earn independent references."}]}
+  ],
+  "action_plan": {
+    "phases": [
+      {"name":"Phase 1: Critical Fixes","timeframe":"Week 1","items":["Deploy changes","Submit sitemap and request indexing","Verify GBP"]},
+      {"name":"Phase 2: Proof and Entity","timeframe":"Weeks 2-4","items":["Publish real case studies","Publish About and Contact pages","Collect genuine reviews"]},
+      {"name":"Phase 3: Authority","timeframe":"Months 2-3","items":["Publish original evidence-led content","Earn local and industry mentions"]},
+      {"name":"Phase 4: Monitoring","timeframe":"Ongoing","items":["Review Search Console and GBP weekly","Test AI recommendation prompts monthly"]}
+    ]
+  },
+  "artifacts": {"findings_dir":"findings/","screenshots_dir":"screenshots/"}
+}

@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/web-development-agency-hubli-dharwad/",
+      "destination": "/web-development-agency-hubli-dharwad/index.html"
+    }
+  ],
   "redirects": [
     {
       "source": "/services/:path*",

@@ -217,3 +217,13 @@ test('inquiry form shows inline errors and blocks submit', async ({ page }) => {
   await expect(dialog.getByRole('heading',{level:2})).toContainText('Thanks');
   expect(posted).toHaveLength(1);
 });
+
+test('SEO page and favicon assets are crawlable', async ({ page, request }) => {
+  const pageResponse=await page.goto('/web-development-agency-hubli-dharwad/index.html');
+  expect(pageResponse?.status()).toBe(200);
+  await expect(page.getByRole('heading',{level:1})).toContainText('Websites built');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://www.tanvo.in/web-development-agency-hubli-dharwad/');
+  for(const path of ['/favicon.ico','/favicon-48x48.png','/seo-logo.png','/llms.txt']){
+    expect((await request.get(path)).status(),path).toBe(200);
+  }
+});
