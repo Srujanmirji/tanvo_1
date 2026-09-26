@@ -96,12 +96,12 @@
       }
     </script>
     <!-- Crawler fallback in #root stays in the HTML but isn't painted before React mounts -->
-    <style>html{background:#070707}#root>main{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}</style>
-    <noscript><style>#root>main{position:static;width:auto;height:auto;clip-path:none;white-space:normal;color:#eee;padding:24px}</style></noscript>
+    <style>html{background:#070707}.seo-fallback{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}</style>
+    <noscript><style>.seo-fallback{position:static;width:auto;height:auto;clip-path:none;white-space:normal;color:#eee;padding:24px}</style></noscript>
   </head>
   <body>
     <div id="root">
-      <main>
+      <main class="seo-fallback">
         <h1>Web Development Agency in Hubli-Dharwad, Karnataka</h1>
         <p>Tanvo is an eight-member web development agency in Hubli-Dharwad. We design and build fast business websites, e-commerce experiences, custom web applications, mobile apps, UI/UX systems and digital growth systems for organisations in Karnataka and across India.</p>
         <h2>Web development services</h2>
